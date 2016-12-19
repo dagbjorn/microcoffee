@@ -1,0 +1,14 @@
+version: '2'
+services:
+    mongodb:
+        image: tutum/mongodb:3.2
+        ports:
+            - "27017:27017"
+            - "28017:28017"
+        volumes:
+            - mongodbdata:/data/db
+        environment:
+            - AUTH=no
+volumes:
+    mongodbdata:
+        external: true

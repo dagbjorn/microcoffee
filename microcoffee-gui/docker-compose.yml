@@ -1,0 +1,33 @@
+version: '2'
+services:
+    gui:
+        image: microcoffee-gui:1.0.0-SNAPSHOT
+        ports:
+            - "8080:8080"
+        links:
+            - location
+            - order
+    location:
+        image: microcoffee-location:1.0.0-SNAPSHOT
+        ports:
+            - "8081:8081"
+        links:
+            - mongodb
+    order:
+        image: microcoffee-order:1.0.0-SNAPSHOT
+        ports:
+            - "8082:8082"
+        links:
+            - mongodb
+    mongodb:
+        image: tutum/mongodb:3.2
+        ports:
+            - "27017:27017"
+            - "28017:28017"
+        volumes:
+            - mongodbdata:/data/db
+        environment:
+            - AUTH=no
+volumes:
+    mongodbdata:
+        external: true
