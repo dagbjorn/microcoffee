@@ -162,6 +162,10 @@ After microcoffee has started (it takes a while), navigate to the coffee shop to
 
 assuming the (virtual) Linux host IP 192.168.99.100.
 
+:no_entry: The application doesn't work in IE11. Error logged in console: "Object doesn't support property or method 'assign'." Object.assign is used in coffee.js. Needs some fixing...
+
+:no_entry: The "Find by coffee shop" function only works in Firefox. Chrome and Opera disallow getCurrentPosition() when http is used. **TODO** Add https support.
+
 ## REST services
 
 ### Location API
