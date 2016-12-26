@@ -1,36 +1,44 @@
 # microcoffee - The &micro;Coffee Shop
 
 ## Acknowledgements
-The &micro;Coffee Shop application is based on the coffee shop application developed during Trisha Gee's fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however, microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
+The &micro;Coffee Shop application is based on the coffee shop application coded live by Trisha Gee during her fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however, microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
 
 ## The application
 The application is made up by four microservices, each running in its own Docker container. Each microservice, apart from the database, is implemented by a Spring Boot application.
 
 ### microcoffee-database
-Contains the MongoDB database. The microservice is based on the [tutum/mongodb](https://hub.docker.com/r/tutum/mongodb/) image on DockerHub.
+Contains the MongoDB database. The database image is based on the [tutum/mongodb](https://hub.docker.com/r/tutum/mongodb/) image on DockerHub.
 
-The database installation uses a Docker volume, mongodbdata, for data storage. This volume needs to be created before starting the container.
+The database installation uses a Docker volume, *mongodbdata*, for data storage. This volume needs to be created before starting the container.
+
+:warning: The database runs without any security enabled.
 
 ### microcoffee-location
-Contains the Location REST service for locating the nearest coffee shop. Coffee shop locations are based on offline data from [OpenStreetMap](https://www.openstreetmap.org) loaded into the database.
+Contains the Location REST service for locating the nearest coffee shop. Coffee shop geodata is downloaded from [OpenStreetMap](https://www.openstreetmap.org) and imported into the database.
+
+:bulb: The `microcoffee-database` project contains a geodata file, `oslo-coffee-shops.xml`, with all Oslo coffee shops currently registered in OpenStreetMap.
 
 ### microcoffee-order
-Contains the Menu and Order REST services.
+Contains the Menu and Order REST services. Provides an API to read the coffee menu and place coffee orders.
 
 ### microcoffee-gui
-Contains the application GUI written in AngularJS. Nothing fancy, but will load the coffee shop menu from which your coffee order may be selected and submitted. The user may also locate the nearest coffee shop and show it on Google Maps.
+Contains the application GUI written in AngularJS. Nothing fancy, but will load the coffee shop menu from which your favorite coffee may be ordered. The user may also locate the nearest coffee shop and show it on Google Maps.
 
-## Development platform
-The microcoffee application is developed on Windows 10. Tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
+## Prerequisite
+The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
 
-:bulb: Install [Docker Toolbox](https://github.com/docker/toolbox/releases) to get all necessary tools.
+For building and testing the application, you need to install Docker on a suitable Linux host environment (native, Vagrant, Oracle VM VirtualBox etc.)
+
+:bulb: On Windows or Mac, install [Docker Toolbox](https://github.com/docker/toolbox/releases) to get all necessary tools (Docker client, Compose, Machine, Kitematic and VirtualBox).
+
+In addition, you need the basic Java development tools (IDE w/ Java 1.8 and Maven) installed on your development machine.
 
 ## Building microcoffee
 Clone the project from GitHub, https://github.com/dagbjorn/microcoffee.git, or download the zip file and unzip it.
 
 Use Maven to build each microservice in turn. (Spring Boot applications only.)
 
-In microcoffee-location, microcoffee-order and microcoffee-gui, run:
+In `microcoffee-location`, `microcoffee-order` and `microcoffee-gui`, run:
 
     mvn clean package docker:build
 
@@ -39,52 +47,120 @@ Environment-specific properties are defined in the following files:
 
 Project | Production | Integration testing
 ------- | ---------- | -----------------
+microcoffee-gui | env.js | n/a
 microcoffee-location | application.properties | application-test.properties
 microcoffee-order | application.properties | application-test.properties
-microcoffee-gui | env.js | n/a
 
 Environment-specific properties comprise:
 * Database connection URL (for integration testing, separate properties are used).
 * REST service URLs.
 
-## Installation
+In particular, you need to pay attention to the IP address of the (virtual) Linux host. Default value used by the application is **192.168.99.100**. (Suits VirtualBox.)
+
+Default port numbers are:
+
+Microservice | Port
+------- | ----------
+microcoffee-gui | 8080
+microcoffee-location | 8081
+microcoffee-order | 8082
+microcoffee-database | 27017
+
+:warning: If you change any of the environment properties you need to rebuild the Docker image.
+
+## Setting up the database
 
 ### Create a Docker volume for the MongoDB database
-Create a Docker volume named **mongodbdata** to be used by the MongoDB database.
+Create a Docker volume named *mongodbdata* to be used by the MongoDB database.
 
     docker volume create --name mongodbdata
 
-Verify:
+Verify by:
 
     docker volume inspect mongodbdata
 
 ### Load data into the database collections
-The microcoffee-database project is used to load coffee shop locations, *oslo-coffee-shops.xml*, and menu into a database called  **microcoffee**. This is accomplished by running the below Maven command. (We run it twice to also load the test database, **microcoffee-test**.)
+The `microcoffee-database` project is used to load coffee shop locations, `oslo-coffee-shops.xml`, and menu data into a database called  *microcoffee*. This is accomplished by running the below Maven command. (We run it twice to also load the test database, *microcoffee-test*.) Make sure to specify the correct IP address of your (virtual) Linux host.
+
+But first, we need to start MongoDB (from `microcoffee-database` project):
+
+    docker-compose up -d
+
+Then run:
 
     mvn gplus:execute -Ddbhost=192.168.99.100 -Ddbport=27017 -Ddbname=microcoffee -Dshopfile=oslo-coffee-shops.xml
     mvn gplus:execute -Ddbhost=192.168.99.100 -Ddbport=27017 -Ddbname=microcoffee-test -Dshopfile=oslo-coffee-shops.xml
 
+:warning: Just ignore the `java.security.AccessControlException` warnings that are thrown from failed MBean registration.
+
+To verify the database loading, start the MongoDB client in a Docker container. (Use `docker ps` to find the container ID or name.)
+
+    docker exec -it microcoffeedatabase_mongodb_1 mongo microcoffee
+
+    > show databases
+    admin             0.000GB
+    local             0.000GB
+    microcoffee       0.000GB
+    microcoffee-test  0.000GB
+    > use microcoffee
+    switched to db microcoffee
+    > show collections
+    coffeeshop
+    drinkoptions
+    drinksizes
+    drinktypes
+    > db.coffeeshop.count()
+    93
+    > db.coffeeshop.findOne()
+    {
+            "_id" : ObjectId("58610703e113eb24f46a97a8"),
+            "openStreetMapId" : "292135703",
+            "location" : {
+                    "coordinates" : [
+                            10.7587531,
+                            59.9234799
+                    ],
+                    "type" : "Point"
+            },
+            "addr:city" : "Oslo",
+            "addr:country" : "NO",
+            "addr:housenumber" : "55",
+            "addr:postcode" : "0555",
+            "addr:street" : "Thorvald Meyers gate",
+            "amenity" : "cafe",
+            "cuisine" : "coffee_shop",
+            "name" : "Kaffebrenneriet",
+            "opening_hours" : "Mo-Fr 07:00-19:00; Sa-Su 09:00-17:00",
+            "operator" : "Kaffebrenneriet",
+            "phone" : "+47 95262675",
+            "website" : "http://www.kaffebrenneriet.no/butikkene/butikkside/kaffebrenneriet_thorvald_meyersgate_55/",
+            "wheelchair" : "no"
+    }
+    >
+
+Finally, stop the database container:
+
+    docker-compose down
+
 ## Run microcoffee
-From microcoffee-gui, start all four microservices by running:
+From `microcoffee-gui`, start all four microservices by running:
 
     docker-compose up
 
-Each project contains it own docker-compose.yml which will run all downstream containers in addition to itself.
+Each project contains its own `docker-compose.yml` which will run all downstream containers in addition to itself.
 
 For testing individual projects outside Docker, run:
 
     mvn spring-boot:run
 
-Depending on the project, you also have to start any downstream containers from docker-compose.
+Depending on the project, you also need to start downstream containers from docker-compose. If you decide to start several microservice projects from Maven, you need to update the environment properties in its upstream project(s) to use localhost instead of the (virtual) Linux host IP.
 
 ## Give microcoffee a spin
 After microcoffee has started (it takes a while), navigate to the coffee shop to place your coffee order:
 
     http://192.168.99.100:8080/coffee.html
 
-assuming the docker-machine IP 192.168.99.100. Check with:
-
-    docker-machine ls
+assuming the (virtual) Linux host IP 192.168.99.100.
 
 ## REST services
 
@@ -165,7 +241,7 @@ HTTP status | Description
 
     GET http://192.168.99.100:8082/coffeeshop/menu
 
-Response:
+Response (abbreviated):
 
     {
         "types": [
@@ -241,14 +317,13 @@ HTTP status | Description
 
     {
         "coffeeShopId": 1,
-        "drinker": "Me again",
+        "drinker": "Dagbjørn",
         "size": "Small",
         "type": {
             "name": "Americano",
             "family": "Coffee"
         },
         "selectedOptions": [
-            "soy",
             "decaf"
         ]
     }
@@ -256,16 +331,15 @@ HTTP status | Description
 Response:
 
     {
-        "id": "58333105410df8000122a59b",
+        "id": "585fe5230d248f00011173ce",
         "coffeeShopId": 1,
-        "drinker": "Me again",
+        "drinker": "Dagbjørn",
         "size": "Small",
         "type": {
             "name": "Americano",
             "family": "Coffee"
         },
         "selectedOptions": [
-            "soy",
             "decaf"
         ]
     }
@@ -294,19 +368,20 @@ Response:
     {
         "id": "585fe5230d248f00011173ce",
         "coffeeShopId": 1,
-        "drinker": "Me again",
+        "drinker": "Dagbjørn",
         "size": "Small",
         "type": {
             "name": "Americano",
             "family": "Coffee"
         },
         "selectedOptions": [
-            "soy",
             "decaf"
         ]
     }
 
-## Download geodata from OpenStreetMap
+## Other stuff
+
+### Download geodata from OpenStreetMap
 
 :construction: Just some old notes for now...
 
@@ -333,4 +408,3 @@ osmfilter oslo.osm --out-key=cuisine | sort /r
 
 Get all coffee shops:
 osmfilter oslo.osm --keep="all cuisine=coffee_shop" > oslo-coffee-shops.xml
-
