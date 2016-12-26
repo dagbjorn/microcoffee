@@ -25,7 +25,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.mongodb.MongoClient;
 
 import study.microcoffee.location.repository.MongoLocationRepository;
-import study.microcoffee.location.rest.LocationRestService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

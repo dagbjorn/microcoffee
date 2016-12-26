@@ -17,9 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.mongodb.MongoClient;
 
-import study.microcoffee.location.repository.LocationRepository;
-import study.microcoffee.location.repository.MongoLocationRepository;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
