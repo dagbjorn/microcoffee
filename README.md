@@ -362,7 +362,7 @@ Response:
 
 **Testing with curl**
 
-:white_check_mark: Must be run from `microcoffee-order` to find JSON file `src\test\curl\order.json`.
+:white_check_mark: Must be run from `microcoffee-order` to find the JSON file `src\test\curl\order.json`.
 
     curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X POST -d @src\test\curl\order.json http://192.168.99.100:8082/coffeeshop/1/order
 
@@ -403,7 +403,7 @@ Response:
 
 **Testing with curl**
 
-curl -i http://192.168.99.100:8082/coffeeshop/1/order/5854479895fe13000144f070
+    curl -i http://192.168.99.100:8082/coffeeshop/1/order/585fe5230d248f00011173ce
 
 ## Other stuff
 
