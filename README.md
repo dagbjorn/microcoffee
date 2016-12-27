@@ -225,6 +225,14 @@ Response:
       "website": "http://www.kaffebrenneriet.no/butikkene/butikkside/kaffebrenneriet_karenslyst_alle_22/"
     }
 
+**Testing with curl**
+
+    curl -i http://192.168.99.100:8081/coffeeshop/nearest/59.920161/10.683517/200
+
+CORS testing: Adding an Origin header in the request should return Access-Control-Allow-Origin in the response.
+
+    curl -i -H "Origin: http://192.168.99.100:8080" http://192.168.99.100:8081/coffeeshop/nearest/59.920161/10.683517/200
+
 ### Menu API
 
 #### Get menu
@@ -297,6 +305,10 @@ Response (abbreviated):
         ]
     }
 
+**Testing with curl**
+
+    curl -i http://192.168.99.100:8082/coffeeshop/menu
+
 ### Order API
 
 #### Place order
@@ -348,6 +360,12 @@ Response:
         ]
     }
 
+**Testing with curl**
+
+:white_check_mark: Must be run from `microcoffee-order` to find JSON file `src\test\curl\order.json`.
+
+    curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X POST -d @src\test\curl\order.json http://192.168.99.100:8082/coffeeshop/1/order
+
 #### Get order details
 
 **Syntax**
@@ -382,6 +400,10 @@ Response:
             "decaf"
         ]
     }
+
+**Testing with curl**
+
+curl -i http://192.168.99.100:8082/coffeeshop/1/order/5854479895fe13000144f070
 
 ## Other stuff
 
