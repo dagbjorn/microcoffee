@@ -7,6 +7,9 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/**
+ * Domain object for storing a coffee order.
+ */
 @Document(collection = "orders")
 public class Order {
 

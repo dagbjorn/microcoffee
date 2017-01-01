@@ -1,5 +1,8 @@
 package study.microcoffee.order.domain;
 
+/**
+ * Holder object of a drink type that may be ordered.
+ */
 public class DrinkType {
 
     // "type": {

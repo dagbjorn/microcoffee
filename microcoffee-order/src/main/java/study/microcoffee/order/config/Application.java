@@ -7,6 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+/**
+ * The Spring Boot application of the microservice.
+ */
 @SpringBootApplication(scanBasePackages = { "study.microcoffee.order" })
 @EnableMongoRepositories(basePackages = "study.microcoffee.order.repository")
 public class Application {

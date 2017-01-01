@@ -11,6 +11,9 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
+/**
+ * MongoDB implementation of the Menu repository interface.
+ */
 @Repository
 public class MongoMenuRepository implements MenuRepository {
 
@@ -59,8 +62,7 @@ public class MongoMenuRepository implements MenuRepository {
         // + "}";
 
         Object menu = new BasicDBObject("types", getCollectionAsList("drinktypes"))
-            .append("sizes", getCollectionAsList("drinksizes"))
-            .append("availableOptions", getCollectionAsList("drinkoptions"));
+            .append("sizes", getCollectionAsList("drinksizes")).append("availableOptions", getCollectionAsList("drinkoptions"));
 
         return menu;
     }

@@ -26,13 +26,6 @@
     </div>
 
     <div ng-controller="DrinksController" class="container">
-        <alert ng-repeat="message in messages" type="message.type" close="closeAlert($index)">
-            {{message.msg}}
-            <div ng-show="message.orderId">
-                <a target="_blank" ng-href="{{message.orderUrl}}">Order details</a>
-            </div>
-        </alert>
-
         <form ng-submit="giveMeCoffee()">
             <div class="form-group">
                 <label>Drink</label>
@@ -64,6 +57,13 @@
                 <input type="submit" value="Give Me Coffee" class="btn btn-default btn-lg"/>
             </div>
         </form>
+
+        <alert ng-repeat="message in messages" type="message.type" close="closeAlert($index)">
+            {{message.msg}}
+            <div ng-show="message.orderId">
+                <a target="_blank" ng-href="{{message.orderUrl}}">Order details</a>
+            </div>
+        </alert>
 
         <pre>{{drink|json}}</pre>
     </div>

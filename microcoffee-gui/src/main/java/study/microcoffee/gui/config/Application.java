@@ -6,6 +6,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
+/**
+ * The Spring Boot application of the microservice.
+ */
 @SpringBootApplication
 public class Application {
 

@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import study.microcoffee.order.repository.MenuRepository;
 
+/**
+ * Class implementing the Menu REST service for returning the coffee shop menu.
+ * <p>
+ * The implementation supports CORS (Cross-Origin Resource Sharing).
+ */
 @CrossOrigin
 @RestController
 @RequestMapping(path = "/coffeeshop", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -21,6 +26,13 @@ public class MenuRestService {
     @Autowired
     private MenuRepository menuRepository;
 
+    /**
+     * Returns the menu of the coffee shop.
+     * <p>
+     * On success, HTTP status 200 (OK) is returned.
+     *
+     * @return The JSON formatted menu of the coffee shop.
+     */
     @GetMapping(path = "/menu")
     public Object getCoffeeMenu() {
         logger.debug("REST service called: /menu");

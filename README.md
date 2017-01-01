@@ -1,5 +1,11 @@
 # microcoffee - The &micro;Coffee Shop
 
+## Revision log
+
+Date | Change
+---- | -------
+30.12.2016 | Created.
+
 ## Acknowledgements
 The &micro;Coffee Shop application is based on the coffee shop application coded live by Trisha Gee during her fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however, microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
 
@@ -23,6 +29,8 @@ Contains the Menu and Order REST services. Provides an API to read the coffee me
 
 ### microcoffee-gui
 Contains the application GUI written in AngularJS. Nothing fancy, but will load the coffee shop menu from which your favorite coffee may be ordered. The user may also locate the nearest coffee shop and show it on Google Maps.
+
+:warning: For the time being, the GUI works best in Firefox. In Chrome and Opera, https in needed in order to get the HTML Geolocation API working.
 
 ## Prerequisite
 The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
@@ -176,7 +184,7 @@ assuming the (virtual) Linux host IP 192.168.99.100.
 
     GET /coffeeshop/nearest/{latitude}/{longitude}/{maxdistance}
 
-Find the nearest coffee shop within *maxdistance* meters of the position given by the *latitude*/*longitude* coordinates.
+Find the nearest coffee shop within *maxdistance* meters from the position given by the WGS84 *latitude*/*longitude* coordinates.
 
 **Response**
 
