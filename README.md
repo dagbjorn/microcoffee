@@ -7,7 +7,7 @@ Date | Change
 30.12.2016 | Created.
 
 ## Acknowledgements
-The &micro;Coffee Shop application is based on the coffee shop application coded live by Trisha Gee during her fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however, microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
+The &micro;Coffee Shop application is based on the coffee shop application coded live by Trisha Gee during her fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however; microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
 
 ## The application
 The application is made up by four microservices, each running in its own Docker container. Each microservice, apart from the database, is implemented by a Spring Boot application.
@@ -22,7 +22,7 @@ The database installation uses a Docker volume, *mongodbdata*, for data storage.
 ### microcoffee-location
 Contains the Location REST service for locating the nearest coffee shop. Coffee shop geodata is downloaded from [OpenStreetMap](https://www.openstreetmap.org) and imported into the database.
 
-:bulb: The `microcoffee-database` project contains a geodata file, `oslo-coffee-shops.xml`, with all Oslo coffee shops currently registered in OpenStreetMap.
+:bulb: The `microcoffee-database` project contains a geodata file, `oslo-coffee-shops.xml`, with all Oslo coffee shops currently registered on OpenStreetMap.
 
 ### microcoffee-order
 Contains the Menu and Order REST services. Provides an API to read the coffee menu and place coffee orders.
@@ -30,7 +30,7 @@ Contains the Menu and Order REST services. Provides an API to read the coffee me
 ### microcoffee-gui
 Contains the application GUI written in AngularJS. Nothing fancy, but will load the coffee shop menu from which your favorite coffee may be ordered. The user may also locate the nearest coffee shop and show it on Google Maps.
 
-:warning: For the time being, the GUI works best in Firefox. In Chrome and Opera, https in needed in order to get the HTML Geolocation API working.
+:warning: For the time being, the GUI works best in Firefox. In Chrome and Opera, https is needed in order to get the HTML Geolocation API working.
 
 ## Prerequisite
 The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
@@ -74,7 +74,7 @@ microcoffee-location | 8081
 microcoffee-order | 8082
 microcoffee-database | 27017
 
-:warning: If you change any of the environment properties you need to rebuild the Docker image.
+:warning: If you change any of the environment properties, you need to rebuild the Docker image.
 
 ## Setting up the database
 
@@ -99,7 +99,7 @@ Then run:
     mvn gplus:execute -Ddbhost=192.168.99.100 -Ddbport=27017 -Ddbname=microcoffee -Dshopfile=oslo-coffee-shops.xml
     mvn gplus:execute -Ddbhost=192.168.99.100 -Ddbport=27017 -Ddbname=microcoffee-test -Dshopfile=oslo-coffee-shops.xml
 
-:warning: Just ignore the `java.security.AccessControlException` warnings that are thrown from failed MBean registration.
+:warning: Just ignore the `java.security.AccessControlException` warnings that are thrown due to failed MBean registration.
 
 To verify the database loading, start the MongoDB client in a Docker container. (Use `docker ps` to find the container ID or name.)
 
@@ -164,7 +164,7 @@ For testing individual projects outside Docker, run:
 Depending on the project, you also need to start downstream containers from docker-compose. If you decide to start several microservice projects from Maven, you need to update the environment properties in its upstream project(s) to use localhost instead of the (virtual) Linux host IP.
 
 ## Give microcoffee a spin
-After microcoffee has started (it takes a while), navigate to the coffee shop to place your coffee order:
+After microcoffee has started (it takes a while), navigate to the coffee shop to place your first coffee order:
 
     http://192.168.99.100:8080/coffee.html
 
