@@ -189,7 +189,14 @@ assuming the (virtual) Linux host IP 192.168.99.100.
 
 ## <a name="rest-services"></a>REST services
 
-### Location API
+### APIs
+
+* [Location API](#location-api)
+* [Menu API](#menu-api)
+* [Order API](#order-api)
+
+
+### <a name="location-api"></a>Location API
 
 #### Get nearest coffee shop
 
@@ -254,7 +261,7 @@ CORS testing: Adding an Origin header in the request should return Access-Contro
 
     curl -i -H "Origin: http://192.168.99.100:8080" http://192.168.99.100:8081/coffeeshop/nearest/59.920161/10.683517/200
 
-### Menu API
+### <a name="menu-api"></a>Menu API
 
 #### Get menu
 
@@ -330,7 +337,7 @@ Response (abbreviated):
 
     curl -i http://192.168.99.100:8082/coffeeshop/menu
 
-### Order API
+### <a name="order-api"></a>Order API
 
 #### Place order
 
