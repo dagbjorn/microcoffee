@@ -6,10 +6,23 @@ Date | Change
 ---- | -------
 30.12.2016 | Created.
 
-## Acknowledgements
+## Contents
+
+* [Acknowledgements](#acknowledgements)
+* [The application](#application)
+* [Prerequisite](#prerequisite)
+* [Building microcoffee](#building-microcoffee)
+* [Application and environment properties](#properties)
+* [Run microcoffee](#run-microcoffee)
+* [Setting up the database](#setting-up-database)
+* [Give microcoffee a spin](#give-a-spin)
+* [REST services](#rest-services)
+* [Other stuff](#other-stuff)
+
+## <a name="acknowledgements"></a>Acknowledgements
 The &micro;Coffee Shop application is based on the coffee shop application coded live by Trisha Gee during her fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however; microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
 
-## The application
+## <a name="application"></a>The application
 The application is made up by four microservices, each running in its own Docker container. Each microservice, apart from the database, is implemented by a Spring Boot application.
 
 ### microcoffee-database
@@ -32,7 +45,7 @@ Contains the application GUI written in AngularJS. Nothing fancy, but will load 
 
 :warning: For the time being, the GUI works best in Firefox. In Chrome and Opera, https is needed in order to get the HTML Geolocation API working.
 
-## Prerequisite
+## <a name="prerequisite"></a>Prerequisite
 The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
 
 For building and testing the application, you need to install Docker on a suitable Linux host environment (native, Vagrant, Oracle VM VirtualBox etc.)
@@ -41,7 +54,7 @@ For building and testing the application, you need to install Docker on a suitab
 
 In addition, you need the basic Java development tools (IDE w/ Java 1.8 and Maven) installed on your development machine.
 
-## Building microcoffee
+## <a name="building-microcoffee"></a>Building microcoffee
 Clone the project from GitHub, https://github.com/dagbjorn/microcoffee.git, or download the zip file and unzip it.
 
 Use Maven to build each microservice in turn. (Spring Boot applications only.)
@@ -50,7 +63,7 @@ In `microcoffee-location`, `microcoffee-order` and `microcoffee-gui`, run:
 
     mvn clean package docker:build
 
-## Application and environment properties
+## <a name="properties"></a>Application and environment properties
 Environment-specific properties are defined in the following files:
 
 Project | Production | Integration testing
@@ -76,7 +89,7 @@ microcoffee-database | 27017
 
 :warning: If you change any of the environment properties, you need to rebuild the Docker image.
 
-## Setting up the database
+## <a name="setting-up-database"></a>Setting up the database
 
 ### Create a Docker volume for the MongoDB database
 Create a Docker volume named *mongodbdata* to be used by the MongoDB database.
@@ -150,7 +163,7 @@ Finally, stop the database container:
 
     docker-compose down
 
-## Run microcoffee
+## <a name="run-microcoffee"></a>Run microcoffee
 From `microcoffee-gui`, start all four microservices by running:
 
     docker-compose up
@@ -163,7 +176,7 @@ For testing individual projects outside Docker, run:
 
 Depending on the project, you also need to start downstream containers from docker-compose. If you decide to start several microservice projects from Maven, you need to update the environment properties in its upstream project(s) to use localhost instead of the (virtual) Linux host IP.
 
-## Give microcoffee a spin
+## <a name="give-a-spin"></a>Give microcoffee a spin
 After microcoffee has started (it takes a while), navigate to the coffee shop to place your first coffee order:
 
     http://192.168.99.100:8080/coffee.html
@@ -174,7 +187,7 @@ assuming the (virtual) Linux host IP 192.168.99.100.
 
 :no_entry: The "Find my coffee shop" function only works in Firefox. Chrome and Opera disallow getCurrentPosition() when http is used. **TODO** Add https support.
 
-## REST services
+## <a name="rest-services"></a>REST services
 
 ### Location API
 
@@ -413,7 +426,7 @@ Response:
 
     curl -i http://192.168.99.100:8082/coffeeshop/1/order/585fe5230d248f00011173ce
 
-## Other stuff
+## <a name="other-stuff"></a>Other stuff
 
 ### Download geodata from OpenStreetMap
 
