@@ -28,7 +28,7 @@ The &micro;Coffee Shop application is based on the coffee shop application coded
 ### The microservices
 The application is made up by four microservices, each running in its own Docker container. Each microservice, apart from the database, is implemented by a Spring Boot application.
 
-By default, the application uses https on the frontend as well as between the frontend and the backend REST services. https is a requirement in Chrome and Opera to get the HTML Geolocation API going.
+The application supports both http and https on the frontend as well as between the frontend and the backend REST services. However, https is a requirement in Chrome and Opera to get the HTML Geolocation API going. Also, browsers are not particulary happy with mixed content (mix of http and https connections), so pure use of https is recommended.
 
 #### microcoffee-database
 Contains the MongoDB database. The database image is based on the [tutum/mongodb](https://hub.docker.com/r/tutum/mongodb/) image on DockerHub.
@@ -51,10 +51,10 @@ Contains the application GUI written in AngularJS. Nothing fancy, but will load 
 ### Common artifacts
 The application also contains some common artifacts (for the time being only one) which are used by more than one microservice. Each artifact is built by its own Maven project.
 
-A word of warning: Common artifacts should be used wisely in the microservice architecture.
+A word of warning: Common artifacts should be used wisely in a microservice architecture.
 
 #### microcoffee-certificates
-Creates a self-signed PKI certificate, contained in the Java keystore `microcoffee-certificates.jks`, needed by the application in order to use https. In fact, two certificates are created, one with the fixed common name (CN) `localhost` and one with a common name free of choice (default `192.168.99.100`).
+Creates a self-signed PKI certificate, contained in the Java keystore `microcoffee-keystore.jks`, needed by the application to run https. In fact, two certificates are created, one with the fixed common name (CN) `localhost` and one with a common name free of choice (default `192.168.99.100`).
 
 ## <a name="prerequisite"></a>Prerequisite
 The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
@@ -73,7 +73,7 @@ Clone the project from GitHub, https://github.com/dagbjorn/microcoffee.git, or d
 ### Build common artifacts
 
 #### Create the certificate artifact
-In order for https to work, a self-signed certificate needs to be created. The `microcoffee-certificates` project builds a jar containing a Java keystore, `microcoffee-certificates.jks`, with the following two certificates:
+In order for https to work, a self-signed certificate needs to be created. The `microcoffee-certificates` project builds a jar containing a Java keystore, `microcoffee-keystore.jks`, with the following two certificates:
 
 * One certificate for use on `localhost`, i.e. common name is set to this value.
 * One certificate for use on a user-defined hostname/IP address (default value is `192.168.99.100`).
@@ -118,14 +118,14 @@ Environment-specific properties comprise:
 
 In particular, you need to pay attention to the IP address of the (virtual) Linux host. Default value used by the application is **192.168.99.100**. (Suits VirtualBox.)
 
-The port numbers are (default in **bold**):
+The port numbers are:
 
 Microservice | http port | https port
 ------- | ---------- | ----------
-microcoffee-gui | 8080 | **8443**
-microcoffee-location | 8081 | **8444**
-microcoffee-order | 8082 | **8445**
-microcoffee-database | **27017** | n/a
+microcoffee-gui | 8080 | 8443
+microcoffee-location | 8081 | 8444
+microcoffee-order | 8082 | 8445
+microcoffee-database | 27017 | n/a
 
 :warning: If you change any of the environment properties, you need to rebuild the actual Docker image.
 
@@ -500,19 +500,22 @@ Download geodata:
 - Adjust wanted size of map
 - Click Export
 - Click Overpass API (works better)
-- Save to file: oslo.osm
+- Save to file: `oslo.osm`
 
 osmfilter:
 http://wiki.openstreetmap.org/wiki/Osmfilter
 osmfilter is used to filter OpenStreetMap data files for specific tags.
 
-Install dir for exe: C:\apps\utils
+Install dir for exe (Windows): `C:\apps\utils`
 
 List of all Keys, sorted by Occurrence:
-osmfilter oslo.osm --out-count
+
+    osmfilter oslo.osm --out-count
 
 List of a Key's Values, sorted by Occurrence:
-osmfilter oslo.osm --out-key=cuisine | sort /r
+
+    osmfilter oslo.osm --out-key=cuisine | sort /r
 
 Get all coffee shops:
-osmfilter oslo.osm --keep="all cuisine=coffee_shop" > oslo-coffee-shops.xml
+
+    osmfilter oslo.osm --keep="all cuisine=coffee_shop" > oslo-coffee-shops.xml
