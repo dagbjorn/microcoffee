@@ -5,6 +5,7 @@
 Date | Change
 ---- | -------
 30.12.2016 | Created.
+21.01.2017 | Added SSL support. Chrome and Opera require https for HTML Geolocation API to work.
 
 ## Contents
 
@@ -23,27 +24,37 @@ Date | Change
 The &micro;Coffee Shop application is based on the coffee shop application coded live by Trisha Gee during her fabulous talk, "HTML5, Angular.js, Groovy, Java, MongoDB all together - what could possibly go wrong?", given at QCon London 2014. A few differences should be noted however; microcoffee uses a microservice architecture, runs on Docker and is developed in Spring Boot instead of Dropwizard as in Trisha's version.
 
 ## <a name="application"></a>The application
+
+### The microservices
 The application is made up by four microservices, each running in its own Docker container. Each microservice, apart from the database, is implemented by a Spring Boot application.
 
-### microcoffee-database
+By default, the application uses https on the frontend as well as between the frontend and the backend REST services. https is a requirement in Chrome and Opera to get the HTML Geolocation API going.
+
+#### microcoffee-database
 Contains the MongoDB database. The database image is based on the [tutum/mongodb](https://hub.docker.com/r/tutum/mongodb/) image on DockerHub.
 
 The database installation uses a Docker volume, *mongodbdata*, for data storage. This volume needs to be created before starting the container.
 
 :warning: The database runs without any security enabled.
 
-### microcoffee-location
+#### microcoffee-location
 Contains the Location REST service for locating the nearest coffee shop. Coffee shop geodata is downloaded from [OpenStreetMap](https://www.openstreetmap.org) and imported into the database.
 
-:bulb: The `microcoffee-database` project contains a geodata file, `oslo-coffee-shops.xml`, with all Oslo coffee shops currently registered on OpenStreetMap.
+:bulb: The `microcoffee-database` project contains a geodata file, `oslo-coffee-shops.xml`, with all Oslo coffee shops currently registered on OpenStreetMap. See [Download geodata from OpenStreetMap](#download-geodata) for how this file is created.
 
-### microcoffee-order
-Contains the Menu and Order REST services. Provides an API to read the coffee menu and place coffee orders.
+#### microcoffee-order
+Contains the Menu and Order REST services. Provides APIs for reading the coffee menu and placing coffee orders.
 
-### microcoffee-gui
+#### microcoffee-gui
 Contains the application GUI written in AngularJS. Nothing fancy, but will load the coffee shop menu from which your favorite coffee may be ordered. The user may also locate the nearest coffee shop and show it on Google Maps.
 
-:warning: For the time being, the GUI works best in Firefox. In Chrome and Opera, https is needed in order to get the HTML Geolocation API working.
+### Common artifacts
+The application also contains some common artifacts (for the time being only one) which are used by more than one microservice. Each artifact is built by its own Maven project.
+
+A word of warning: Common artifacts should be used wisely in the microservice architecture.
+
+#### microcoffee-certificates
+Creates a self-signed PKI certificate, contained in the Java keystore `microcoffee-certificates.jks`, needed by the application in order to use https. In fact, two certificates are created, one with the fixed common name (CN) `localhost` and one with a common name free of choice (default `192.168.99.100`).
 
 ## <a name="prerequisite"></a>Prerequisite
 The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
@@ -55,8 +66,36 @@ For building and testing the application, you need to install Docker on a suitab
 In addition, you need the basic Java development tools (IDE w/ Java 1.8 and Maven) installed on your development machine.
 
 ## <a name="building-microcoffee"></a>Building microcoffee
+
+### Get the code from GitHub
 Clone the project from GitHub, https://github.com/dagbjorn/microcoffee.git, or download the zip file and unzip it.
 
+### Build common artifacts
+
+#### Create the certificate artifact
+In order for https to work, a self-signed certificate needs to be created. The `microcoffee-certificates` project builds a jar containing a Java keystore, `microcoffee-certificates.jks`, with the following two certificates:
+
+* One certificate for use on `localhost`, i.e. common name is set to this value.
+* One certificate for use on a user-defined hostname/IP address (default value is `192.168.99.100`).
+
+The key alias is set to the same value as the common name.
+
+In `microcoffee-certificates`, run:
+
+    mvn clean install
+
+To inspect the created keystore, run:
+
+    keytool -list -v -keystore target\classes\microcoffee-keystore.jks -storepass 12345678
+
+To specify, a different common name and/or key alias, run:
+
+    mvn clean install -Dcn=myhost.com
+    mvn clean install -Dcn=myhost.com -Dalias=mykey
+
+:bulb: The keystore properties are specified in `application.properties` of each microservice using the `microcoffee-certificates` artifact.
+
+### Build the microservices
 Use Maven to build each microservice in turn. (Spring Boot applications only.)
 
 In `microcoffee-location`, `microcoffee-order` and `microcoffee-gui`, run:
@@ -64,7 +103,7 @@ In `microcoffee-location`, `microcoffee-order` and `microcoffee-gui`, run:
     mvn clean package docker:build
 
 ## <a name="properties"></a>Application and environment properties
-Environment-specific properties are defined in the following files:
+Application and environment-specific properties are defined in the following files:
 
 Project | Production | Integration testing
 ------- | ---------- | -----------------
@@ -75,19 +114,20 @@ microcoffee-order | application.properties | application-test.properties
 Environment-specific properties comprise:
 * Database connection URL (for integration testing, separate properties are used).
 * REST service URLs.
+* Keystore properties.
 
 In particular, you need to pay attention to the IP address of the (virtual) Linux host. Default value used by the application is **192.168.99.100**. (Suits VirtualBox.)
 
-Default port numbers are:
+The port numbers are (default in **bold**):
 
-Microservice | Port
-------- | ----------
-microcoffee-gui | 8080
-microcoffee-location | 8081
-microcoffee-order | 8082
-microcoffee-database | 27017
+Microservice | http port | https port
+------- | ---------- | ----------
+microcoffee-gui | 8080 | **8443**
+microcoffee-location | 8081 | **8444**
+microcoffee-order | 8082 | **8445**
+microcoffee-database | **27017** | n/a
 
-:warning: If you change any of the environment properties, you need to rebuild the Docker image.
+:warning: If you change any of the environment properties, you need to rebuild the actual Docker image.
 
 ## <a name="setting-up-database"></a>Setting up the database
 
@@ -179,13 +219,20 @@ Depending on the project, you also need to start downstream containers from dock
 ## <a name="give-a-spin"></a>Give microcoffee a spin
 After microcoffee has started (it takes a while), navigate to the coffee shop to place your first coffee order:
 
-    http://192.168.99.100:8080/coffee.html
+    https://192.168.99.100:8443/coffee.html
 
-assuming the (virtual) Linux host IP 192.168.99.100.
+assuming the (virtual) Linux host IP 192.168.99.100 and https is in use.
 
-:no_entry: The application doesn't work in IE11. Error logged in console: "Object doesn't support property or method 'assign'." Object.assign is used in coffee.js. Needs some fixing...
+:warning: Because of the self-signed certificate, a security-aware browser will complain a bit.
+* Chrome: Just click Advanced and hit the "Proceed to 192.168.99.100 (unsafe)" link.
+* Opera: Just click Continue anyway.
+* Firefox: Takes a bit more effort. Click Advanced, then Add Exception and finally Confirm Security Exception. Make sure that "Permanently store this exception" is checked. Next, manually add exceptions for the REST service URLs.
+  - Select Tools > Options > Advanced > Certificates > View Certificates to open Certificate Manager.
+  - In turn, add **Server** exceptions for the following locations: `https://192.168.99.100:8444` and `https://192.168.99.100:8445`
+  - Click Get Certificate
+  - Click Confirm Security Exception (make sure that "Permanently store this exception" is checked).
 
-:no_entry: The "Find my coffee shop" function only works in Firefox. Chrome and Opera disallow getCurrentPosition() when http is used. **TODO** Add https support.
+:no_entry: The application doesn't work in IE11. Error logged in console: "Object doesn't support property or method 'assign'." Object.assign is used in coffee.js. Needs some fixing... And Microsoft Edge? Cannot even find the site...
 
 ## <a name="rest-services"></a>REST services
 
@@ -256,10 +303,14 @@ Response:
 **Testing with curl**
 
     curl -i http://192.168.99.100:8081/coffeeshop/nearest/59.920161/10.683517/200
+    curl -i --insecure https://192.168.99.100:8444/coffeeshop/nearest/59.920161/10.683517/200
+
+:bulb: For testing with https, use a recent curl version that supports SSL. (7.46.0 is good.)
 
 CORS testing: Adding an Origin header in the request should return Access-Control-Allow-Origin in the response.
 
     curl -i -H "Origin: http://192.168.99.100:8080" http://192.168.99.100:8081/coffeeshop/nearest/59.920161/10.683517/200
+    curl -i --insecure -H "Origin: https://192.168.99.100:8443" https://192.168.99.100:8444/coffeeshop/nearest/59.920161/10.683517/200
 
 ### <a name="menu-api"></a>Menu API
 
@@ -336,6 +387,7 @@ Response (abbreviated):
 **Testing with curl**
 
     curl -i http://192.168.99.100:8082/coffeeshop/menu
+    curl -i --insecure https://192.168.99.100:8445/coffeeshop/menu
 
 ### <a name="order-api"></a>Order API
 
@@ -393,6 +445,7 @@ Response:
 :white_check_mark: Must be run from `microcoffee-order` to find the JSON file `src\test\curl\order.json`.
 
     curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X POST -d @src\test\curl\order.json http://192.168.99.100:8082/coffeeshop/1/order
+    curl -i --insecure -H "Accept: application/json" -H "Content-Type: application/json" -X POST -d @src\test\curl\order.json https://192.168.99.100:8445/coffeeshop/1/order
 
 #### Get order details
 
@@ -432,10 +485,11 @@ Response:
 **Testing with curl**
 
     curl -i http://192.168.99.100:8082/coffeeshop/1/order/585fe5230d248f00011173ce
+    curl -i --insecure https://192.168.99.100:8445/coffeeshop/1/order/585fe5230d248f00011173ce
 
 ## <a name="other-stuff"></a>Other stuff
 
-### Download geodata from OpenStreetMap
+### <a name="download-geodata"></a>Download geodata from OpenStreetMap
 
 :construction: Just some old notes for now...
 

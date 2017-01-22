@@ -4,6 +4,7 @@ services:
         image: microcoffee-gui:1.0.0-SNAPSHOT
         ports:
             - "8080:8080"
+            - "8443:8443"
         links:
             - location
             - order
@@ -11,12 +12,14 @@ services:
         image: microcoffee-location:1.0.0-SNAPSHOT
         ports:
             - "8081:8081"
+            - "8444:8444"
         links:
             - mongodb
     order:
         image: microcoffee-order:1.0.0-SNAPSHOT
         ports:
             - "8082:8082"
+            - "8445:8445"
         links:
             - mongodb
     mongodb:

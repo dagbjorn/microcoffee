@@ -13,7 +13,26 @@
         <version>1.4.3.RELEASE</version>
     </parent>
 
+    <properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <microcoffee-certificates.version>1.0.0-SNAPSHOT</microcoffee-certificates.version>
+
+        <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
+        <docker.image.prefix>dagbjorn</docker.image.prefix>
+        <docker.image.tag>${project.version}</docker.image.tag>
+    </properties>
+
     <dependencies>
+        <!-- Internal projects -->
+        <dependency>
+            <groupId>study.microcoffee</groupId>
+            <artifactId>microcoffee-certificates</artifactId>
+            <version>${microcoffee-certificates.version}</version>
+        </dependency>
+
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -55,14 +74,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <java.version>1.8</java.version>
-
-        <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
-        <docker.image.prefix>dagbjorn</docker.image.prefix>
-        <docker.image.tag>${project.version}</docker.image.tag>
-    </properties>
 
     <build>
         <plugins>
