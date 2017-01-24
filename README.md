@@ -57,7 +57,7 @@ A word of warning: Common artifacts should be used wisely in a microservice arch
 Creates a self-signed PKI certificate, contained in the Java keystore `microcoffee-keystore.jks`, needed by the application to run https. In fact, two certificates are created, one with the fixed common name (CN) `localhost` and one with a common name free of choice (default `192.168.99.100`).
 
 ## <a name="prerequisite"></a>Prerequisite
-The microcoffee application is developed on Windows 10 and tested on Docker 1.12.2 running on Oracle VM VirtualBox 5.1.8.
+The microcoffee application is developed on Windows 10 and tested on Docker 1.13.0 running on Oracle VM VirtualBox 5.1.14.
 
 For building and testing the application, you need to install Docker on a suitable Linux host environment (native, Vagrant, Oracle VM VirtualBox etc.)
 
