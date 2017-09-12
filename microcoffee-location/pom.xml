@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.4.RELEASE</version>
+        <version>1.5.6.RELEASE</version>
     </parent>
 
     <properties>
@@ -19,7 +19,7 @@
 
         <microcoffee-certificates.version>1.0.0-SNAPSHOT</microcoffee-certificates.version>
 
-        <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
+        <docker-maven-plugin.version>1.0.0</docker-maven-plugin.version>
         <docker.image.prefix>dagbjorn</docker.image.prefix>
         <docker.image.tag>${project.version}</docker.image.tag>
     </properties>
@@ -96,7 +96,7 @@
                 <version>${docker-maven-plugin.version}</version>
                 <configuration>
                     <imageName>${project.artifactId}</imageName>
-                    <dockerDirectory>src/main/docker</dockerDirectory>
+                    <dockerDirectory>${basedir}/src/main/docker</dockerDirectory>
                     <resources>
                         <resource>
                             <targetPath>/</targetPath>

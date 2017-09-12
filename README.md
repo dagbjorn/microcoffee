@@ -6,12 +6,14 @@ Date | Change
 ---- | -------
 30.12.2016 | Created.
 21.01.2017 | Added SSL support. Chrome and Opera require https for HTML Geolocation API to work.
+12.09.2017 | Migrated to official MongoDB image.
 
 ## Contents
 
 * [Acknowledgements](#acknowledgements)
 * [The application](#application)
 * [Prerequisite](#prerequisite)
+* [Start Docker VM](#start-docker-vm)
 * [Building microcoffee](#building-microcoffee)
 * [Application and environment properties](#properties)
 * [Run microcoffee](#run-microcoffee)
@@ -31,7 +33,7 @@ The application is made up by four microservices, each running in its own Docker
 The application supports both http and https on the frontend as well as between the frontend and the backend REST services. However, https is a requirement in Chrome and Opera to get the HTML Geolocation API going. Also, browsers are not particulary happy with mixed content (mix of http and https connections), so pure use of https is recommended.
 
 #### microcoffee-database
-Contains the MongoDB database. The database image is based on the [tutum/mongodb](https://hub.docker.com/r/tutum/mongodb/) image on DockerHub.
+Contains the MongoDB database. The database image is based on the official [mongo](https://hub.docker.com/r/_/mongo/) image on DockerHub.
 
 The database installation uses a Docker volume, *mongodbdata*, for data storage. This volume needs to be created before starting the container.
 
@@ -57,13 +59,34 @@ A word of warning: Common artifacts should be used wisely in a microservice arch
 Creates a self-signed PKI certificate, contained in the Java keystore `microcoffee-keystore.jks`, needed by the application to run https. In fact, two certificates are created, one with the fixed common name (CN) `localhost` and one with a common name free of choice (default `192.168.99.100`).
 
 ## <a name="prerequisite"></a>Prerequisite
-The microcoffee application is developed on Windows 10 and tested on Docker 1.13.0 running on Oracle VM VirtualBox 5.1.14.
+The microcoffee application is developed on Windows 10 and tested on Docker 17.06.2-ce running on Oracle VM VirtualBox 5.1.26.
 
 For building and testing the application, you need to install Docker on a suitable Linux host environment (native, Vagrant, Oracle VM VirtualBox etc.)
 
 :bulb: On Windows or Mac, install [Docker Toolbox](https://github.com/docker/toolbox/releases) to get all necessary tools (Docker client, Compose, Machine, Kitematic and VirtualBox).
 
+A Docker VM is needed. To create a Docker VM called `docker-vm` for use with VirtualBox, execute the following command:
+
+    docker-machine create --driver virtualbox docker-vm
+
 In addition, you need the basic Java development tools (IDE w/ Java 1.8 and Maven) installed on your development machine.
+
+## <a name="start-docker-vm"></a>Start Docker VM
+Before moving on and start building microcoffee, we need a running VM. The reason is that the Docker images being built are stored in the local Docker repository inside the VM.
+
+To start your Docker VM (called `docker-vm`), run:
+
+    docker-machine start docker-vm
+
+Next, configure the Docker environment variables in your shell following the instructions displayed by:
+
+    docker-machine env docker-vm
+
+:bulb: On Windows, it is handy to create a batch file to do this, e.g. `docker-setenv.bat`. The file should be placed in a folder on your Windows path.
+
+To check the status of your Docker VM, run:
+
+    docker-machine status docker-vm
 
 ## <a name="building-microcoffee"></a>Building microcoffee
 
@@ -97,6 +120,8 @@ To specify, a different common name and/or key alias, run:
 
 ### Build the microservices
 Use Maven to build each microservice in turn. (Spring Boot applications only.)
+
+:exclamation: Just remember that your Docker VM must be running for building the Docker images successfully.
 
 In `microcoffee-location`, `microcoffee-order` and `microcoffee-gui`, run:
 
